@@ -1,0 +1,4 @@
+Django
+mercurial
+-e ../../django-memorious
+
