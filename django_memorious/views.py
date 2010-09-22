@@ -16,8 +16,10 @@ def memorious(request, name, revision=None, repository=None):
         
     repo = django_memorious.get_repository(repository)
 
-    #context = repo[revision][name]
-    context = repo.filectx(name, fileid=revision)
+    if revision==None:
+        context = repo[revision][name]
+    else:
+        context = repo.filectx(name, fileid=revision)
 
     mimetype = mimetypes.guess_type(name)[0] or 'application/octet-stream'
     contents = context.data()
