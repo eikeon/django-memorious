@@ -1,33 +1,37 @@
+import django_memorious
+
 import datetime
 from django import template
 from django.conf import settings
 from django.core import urlresolvers
 
-from mercurial import node
+from mercurial.node import hex
 
 
 register = template.Library()
 
 
 class MemoriousNode(template.Node):
-    _cache = {}
 
     def __init__(self, repository, path):
         self.repository = repository
         self.path = path
 
     def render(self, context):
-        url = self._cache.get(self.path, None)
-        if not url:
-            repo = settings.MEMORIOUS_REPOSITORIES[self.repository]
-            changectx = repo['tip']
+        repository = django_memorious.get_repository(self.repository)
+        if getattr(settings, "MEMORIOUS_DEBUG", False):
+            revision = None
+        else:
+            changectx = repository['tip']
             fctx = changectx[self.path]
-            url = urlresolvers.reverse(
-                'memorious', 
-                kwargs={"repository": self.repository,
-                        "revision": fctx.hex(), #.filerev(),
-                        "name": self.path})
-            self._cache[self.path] = url
+            # revision = fctx.hex()
+            revision = hex(fctx.filelog().tip())
+
+        url = urlresolvers.reverse(
+            'memorious', 
+            kwargs={"repository": self.repository,
+                    "revision": revision,
+                    "name": self.path})
         return url
 
 

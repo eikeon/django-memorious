@@ -7,12 +7,17 @@ from django.http import HttpResponse
 from django.utils.http import http_date
 from django.utils import cache
 
+import django_memorious
 
-def memorious(request, name, revision, repository=None):
-    repository = settings.MEMORIOUS_REPOSITORIES[repository]
 
-    changectx = repository[revision]
-    context = changectx[name]
+def memorious(request, name, revision=None, repository=None):
+    if revision=="None":
+        revision = None
+        
+    repo = django_memorious.get_repository(repository)
+
+    #context = repo[revision][name]
+    context = repo.filectx(name, fileid=revision)
 
     mimetype = mimetypes.guess_type(name)[0] or 'application/octet-stream'
     contents = context.data()
@@ -26,7 +31,7 @@ def memorious(request, name, revision, repository=None):
     response["Content-Length"] = len(contents)
 
     #  Cache
-    if revision==context.hex():  #  a specific version was requested
+    if revision and revision==context.hex():  #  a specific version was requested
         #  cache for a long time
         WEEK = 60 * 60 * 24 * 7
         ttl = 2 * WEEK

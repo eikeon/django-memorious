@@ -79,16 +79,13 @@ INSTALLED_APPS = (
     'django_memorious',
 )
 
-import mercurial.hg
-import mercurial.ui
-
 def abs_path(path):
     import os
     _root = os.path.abspath(os.path.dirname(__file__))
     return os.path.join(_root, path)
 
 MEMORIOUS_REPOSITORIES = {
-    "default": mercurial.hg.repository(
-        mercurial.ui.ui(),
-        abs_path("repo"))
+    "default": abs_path("repo")
     }
+
+MEMORIOUS_DEBUG = False
