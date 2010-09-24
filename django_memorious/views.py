@@ -33,7 +33,7 @@ def memorious(request, name, revision=None, repository=None):
     response["Content-Length"] = len(contents)
 
     #  Cache
-    if revision and revision==context.hex():  #  a specific version was requested
+    if revision:
         #  cache for a long time
         WEEK = 60 * 60 * 24 * 7
         ttl = 2 * WEEK
