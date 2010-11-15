@@ -32,6 +32,7 @@ def memorious(request, name, revision=None, repository=None):
     response["Last-Modified"] = http_date(time.mktime(modified.timetuple()))
 
     response["Content-Length"] = len(contents)
+    response["Cache-Control"] = "public"
 
     #  Cache
     if revision:
