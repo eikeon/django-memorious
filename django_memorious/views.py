@@ -19,7 +19,8 @@ def memorious(request, name, revision=None, repository=None):
     if revision==None:
         context = repo[revision][name]
     else:
-        context = repo.filectx(name, fileid=revision)
+        changectx = repo[revision]
+        context = changectx[name]
 
     mimetype = mimetypes.guess_type(name)[0] or 'application/octet-stream'
     contents = context.data()

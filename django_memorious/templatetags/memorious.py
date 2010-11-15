@@ -25,8 +25,6 @@ class MemoriousNode(template.Node):
             changectx = repository['tip']
             fctx = changectx[self.path]
             revision = fctx.hex()
-            # relative links will not work if we use the following:
-            # revision = hex(fctx.filelog().tip())
 
         url = urlresolvers.reverse(
             'memorious', 
