@@ -8,5 +8,6 @@ setup(name='django-memorious',
       author_email='',
       url='',
       download_url='',
-      packages=['django_memorious'],
+      packages=['django_memorious',
+                'django_memorious.templatetags'],
       )
