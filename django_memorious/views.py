@@ -38,7 +38,7 @@ def memorious(request, name, revision=None, repository=None):
     if revision:
         #  cache for a long time
         WEEK = 60 * 60 * 24 * 7
-        ttl = 2 * WEEK
+        ttl = 52 * WEEK
     else:
         #  do not cache (revision may have been 'tip' or somesuch)
         ttl = 0
