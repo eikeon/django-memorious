@@ -26,11 +26,6 @@ def memorious(request, name, revision=None, repository=None):
     contents = context.data()
     response = HttpResponse(contents, mimetype=mimetype)
 
-    timestamp, offset = context.date()
-    modified = datetime.datetime.fromtimestamp(timestamp)
-    modified += datetime.timedelta(0, offset)
-    response["Last-Modified"] = http_date(time.mktime(modified.timetuple()))
-
     response["Content-Length"] = len(contents)
     response["Cache-Control"] = "public"
 
@@ -42,7 +37,13 @@ def memorious(request, name, revision=None, repository=None):
     else:
         #  do not cache (revision may have been 'tip' or somesuch)
         ttl = 0
-    cache.patch_response_headers(response, ttl)
+        timestamp, offset = context.date()
+        modified = datetime.datetime.fromtimestamp(timestamp)
+        modified += datetime.timedelta(0, offset)
+        response["Last-Modified"] = http_date(time.mktime(modified.timetuple()))
+        response['ETag'] = '"%s"' % md5_constructor(response.content).hexdigest()
+
+    response['Expires'] = http_date(time.time() + ttl)
+    cache.patch_cache_control(response, max_age=ttl)
 
     return response
-
