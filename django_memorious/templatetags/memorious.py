@@ -11,6 +11,35 @@ from mercurial.node import hex
 register = template.Library()
 
 
+def memoize(function):
+    memo = {}
+    def decorated_function(*args):
+        result = memo.get(args, None)
+        if result is None:
+            result = function(*args)
+            memo[args] = result
+        return result
+    return decorated_function
+
+
+@memoize
+def get_url(repository_name, path):
+    repository = django_memorious.get_repository(repository_name)
+    if getattr(settings, "MEMORIOUS_DEBUG", False):
+        revision = None
+    else:
+        changectx = repository['tip']
+        fctx = changectx[path]
+        revision = fctx.hex()
+
+    url = urlresolvers.reverse(
+        'memorious', 
+        kwargs={"repository": repository_name,
+                "revision": revision,
+                "name": path})
+    return url
+
+
 class MemoriousNode(template.Node):
 
     def __init__(self, repository, path):
@@ -18,20 +47,7 @@ class MemoriousNode(template.Node):
         self.path = path
 
     def render(self, context):
-        repository = django_memorious.get_repository(self.repository)
-        if getattr(settings, "MEMORIOUS_DEBUG", False):
-            revision = None
-        else:
-            changectx = repository['tip']
-            fctx = changectx[self.path]
-            revision = fctx.hex()
-
-        url = urlresolvers.reverse(
-            'memorious', 
-            kwargs={"repository": self.repository,
-                    "revision": revision,
-                    "name": self.path})
-        return url
+        return get_url(self.repository, self.path)
 
 
 @register.tag(name="memorious")

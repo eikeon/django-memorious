@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils.http import http_date
 from django.utils import cache
+from django.utils.hashcompat import md5_constructor
 
 import django_memorious
 
