@@ -2,7 +2,7 @@ from distutils.core import setup
 
 
 setup(name='django-memorious',
-      version="0.0.4",
+      version="0.1.0",
       description='',
       author='',
       author_email='',

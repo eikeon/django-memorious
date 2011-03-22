@@ -1,6 +1,7 @@
 import time
 import datetime
 import mimetypes
+import os.path
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -18,13 +19,25 @@ def memorious(request, name, revision=None, repository=None):
     repo = django_memorious.get_repository(repository)
 
     if revision==None:
-        context = repo[revision][name]
+        repo_context = repo[revision]
     else:
         changectx = repo[revision]
-        context = changectx[name]
+        repo_context = changectx
 
-    mimetype = mimetypes.guess_type(name)[0] or 'application/octet-stream'
+    names = name.split("&")
+
+    first_name = names[0]
+    base = os.path.dirname(first_name)
+    mimetype = mimetypes.guess_type(first_name)[0] or 'application/octet-stream'
+    context = repo_context[first_name]
     contents = context.data()
+
+    for name in names[1:]:
+        name = os.path.join("%s/" % base, name)
+        # TODO: warn if mimetype of names[1:] is different from names[0]
+        context = repo_context[name]
+        contents += context.data()
+    
     response = HttpResponse(contents, mimetype=mimetype)
 
     response["Content-Length"] = len(contents)
@@ -38,10 +51,6 @@ def memorious(request, name, revision=None, repository=None):
     else:
         #  do not cache (revision may have been 'tip' or somesuch)
         ttl = 0
-        timestamp, offset = context.date()
-        modified = datetime.datetime.fromtimestamp(timestamp)
-        modified += datetime.timedelta(0, offset)
-        response["Last-Modified"] = http_date(time.mktime(modified.timetuple()))
         response['ETag'] = '"%s"' % md5_constructor(response.content).hexdigest()
 
     response['Expires'] = http_date(time.time() + ttl)

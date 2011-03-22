@@ -29,8 +29,7 @@ def get_url(repository_name, path):
         revision = None
     else:
         changectx = repository['tip']
-        fctx = changectx[path]
-        revision = fctx.hex()
+        revision = changectx.hex()
 
     url = urlresolvers.reverse(
         'memorious', 
