@@ -4,7 +4,7 @@ import mimetypes
 import os.path
 
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.utils.http import http_date
 from django.utils import cache
 from django.utils.hashcompat import md5_constructor
@@ -16,26 +16,31 @@ def memorious(request, name, revision=None, repository=None):
     if revision=="None":
         revision = None
         
-    repo = django_memorious.get_repository(repository)
+    try:
+        repo = django_memorious.get_repository(repository)
+    except KeyError, e:
+        raise Http404("No repository '%s'" % repository)
 
-    if revision==None:
-        repo_context = repo[revision]
-    else:
-        changectx = repo[revision]
-        repo_context = changectx
+    repo_context = repo[revision]
 
     names = name.split("&")
 
     first_name = names[0]
     base = os.path.dirname(first_name)
     mimetype = mimetypes.guess_type(first_name)[0] or 'application/octet-stream'
-    context = repo_context[first_name]
+    try:
+        context = repo_context[first_name]
+    except KeyError, e:
+        raise Http404("No resource '%s'" % first_name)
     contents = context.data()
 
     for name in names[1:]:
         name = os.path.join("%s/" % base, name)
         # TODO: warn if mimetype of names[1:] is different from names[0]
-        context = repo_context[name]
+        try:
+            context = repo_context[name]
+        except KeyError, e:
+            raise Http404("No resource '%s'" % name)
         contents += context.data()
     
     response = HttpResponse(contents, mimetype=mimetype)
