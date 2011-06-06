@@ -3,6 +3,8 @@ import datetime
 import mimetypes
 import os.path
 
+from mercurial import error
+
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.utils.http import http_date
@@ -23,7 +25,7 @@ def memorious(request, name, revision=None, repository=None):
 
     try:
         repo_context = repo[revision]
-    except RepoLookupError, e:
+    except error.RepoLookupError, e:
         raise Http404("No revision '%s'" % revision)
 
     names = name.split("&")
