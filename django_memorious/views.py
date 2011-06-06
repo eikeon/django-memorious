@@ -21,7 +21,10 @@ def memorious(request, name, revision=None, repository=None):
     except KeyError, e:
         raise Http404("No repository '%s'" % repository)
 
-    repo_context = repo[revision]
+    try:
+        repo_context = repo[revision]
+    except RepoLookupError, e:
+        raise Http404("No revision '%s'" % revision)
 
     names = name.split("&")
 
