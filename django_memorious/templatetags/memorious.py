@@ -28,8 +28,7 @@ def get_url(repository_name, path):
     if getattr(settings, "MEMORIOUS_DEBUG", False):
         revision = None
     else:
-        changectx = repository['tip']
-        revision = changectx.hex()
+        revision = repository.current_revision
 
     url = urlresolvers.reverse(
         'memorious', 
