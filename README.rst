@@ -8,8 +8,7 @@ cache headers, and versions.
 Features
 --------
 
-* template tag for generating urls for static resources that contain
-  their version info.
+* template tag for generating versioned urls for static resources.
 
 * url pattern and view for serving up the versioned urls
 
@@ -29,6 +28,12 @@ You can install django-memorious with the command::
 
   $ pip install https://github.com/eikeon/django-memorious/tarball/master
 
+and the prerequisites::
+
+  $ pip install mercurial
+  $ pip install GitPython
+  $ pip install Django
+
 
 Example usage
 -------------
@@ -40,7 +45,7 @@ add the following bits to your settings.py::
   )
 
   MEMORIOUS_REPOSITORIES = {
-      "default": "/path/to/repo"
+      "default": "/path/to/repo_containing_static_resources"
       }
 
   MEMORIOUS_DEBUG = True
@@ -53,10 +58,14 @@ include the django_memorious.urls in your urlpatters, for example::
 
   (r'^media/', include('django_memorious.urls')),  
 
+in your templates::
+
+  {% load memorious %}
+
+  <a href="{% memorious 'css/site.css' %}">...</a>
+
 
 Source
 ------
-
-The source code is currently available on github. Fork away!
 
 http://github.com/eikeon/django-memorious/
